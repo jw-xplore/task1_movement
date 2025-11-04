@@ -6,11 +6,19 @@ enum ESteeringBehavior
 	Seek = 0
 };
 
+struct SteeringTarget
+{
+public:
+	Point2D position = { 0,0 };
+	Point2D prevPosition = { 0,0 };
+	Point2D velocity = { 0,0 };
+};
+
 class Agent : public Entity
 {
 private:
-	Point2D target = { 300, 300 };
-	float maxVelocity = 2;
+	SteeringTarget* target;
+	float maxVelocity = 1;
 	float targetRadius = 1;
 	float timeToTarget = 0.25f;
 
@@ -18,14 +26,15 @@ private:
 
 public:
 	Agent();
+	~Agent();
 	void Update(float dTime) override;
 	void Draw() override;
 
 	// Steering behavior
 	void Seek();
 	void Flee();
-	void Pursue();
-	void Evade();
+	void Pursue(float maxPrediction);
+	void Evade(float maxPrediction);
 	void Arrive();
-	void Wander();
+	void Wander(float maxRotation);
 };
