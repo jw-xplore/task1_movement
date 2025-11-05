@@ -4,10 +4,6 @@
 #include "EntityManager.h"
 #include "Agent.h"
 
-int DISPLAY_WIDTH = 640;
-int DISPLAY_HEIGHT = 360;
-int DISPLAY_SCALE = 2;
-
 EntityManager* entityManager;
 Agent* agent;
 

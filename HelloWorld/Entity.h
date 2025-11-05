@@ -6,8 +6,15 @@ Entity is supposed to be use in combination with EntityManager to handle creatio
 
 #pragma once
 #include "Play.h"
+#include "Constants.h"
 
 using namespace Play;
+
+struct SteeringOutput
+{
+	Point2D linear;
+	float angular;
+};
 
 class Entity
 {
@@ -18,7 +25,10 @@ protected:
 	Point2D position = { 0,0 };
 	Point2D velocity = { 0,0 };
 	Point2D pivotPoint = { 0,0 };
+	float orientation = 0;
 	float rotation = 0;
+
+	SteeringOutput* steering;
 
 public:
 	Entity();
@@ -37,6 +47,7 @@ public:
 	void Translate(float x, float y);
 	Point2D GetVelocity();
 	void SetVelocity(Point2D velocity);
+	void StayInScreenSpace();
 
 	const Point2D Normalized(Point2D point);
 };

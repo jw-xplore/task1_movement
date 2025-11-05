@@ -3,7 +3,12 @@
 
 enum ESteeringBehavior
 {
-	Seek = 0
+	Seek = 1,
+	Flee = 2,
+	Arrive = 4,
+	Pursue = 8,
+	Evade = 16,
+	Wander = 32
 };
 
 struct SteeringTarget
@@ -17,8 +22,10 @@ public:
 class Agent : public Entity
 {
 private:
+	ESteeringBehavior steeringType = ESteeringBehavior::Seek;
 	SteeringTarget* target;
-	float maxVelocity = 1;
+	float maxVelocity = 100;
+	float maxAcceleration = 20;
 	float targetRadius = 1;
 	float timeToTarget = 0.25f;
 
@@ -31,6 +38,7 @@ public:
 	void Draw() override;
 
 	// Steering behavior
+	void Steer();
 	void Seek();
 	void Flee();
 	void Pursue(float maxPrediction);

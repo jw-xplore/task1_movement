@@ -2,12 +2,12 @@
 
 Entity::Entity()
 {
-
+	steering = new SteeringOutput();
 }
 
 Entity::~Entity()
 {
-
+	delete steering;
 }
 
 // Update basic entity behavior
@@ -15,7 +15,13 @@ Entity::~Entity()
 void Entity::Update(float dTime)
 {
 	// Apply velocity on position change
-	Translate(velocity);
+	this->position += this->velocity * dTime;
+	this->orientation += this->rotation * dTime;
+
+	this->velocity += this->steering->linear * dTime;
+	this->rotation += this->steering->angular * dTime;
+
+	StayInScreenSpace();
 
 	// Base behavior
 	Draw();
@@ -90,4 +96,19 @@ const Point2D Entity::Normalized(Point2D point)
 		return { 0, 0 };
 
 	return { point.x / l, point.y / l };
+}
+
+void Entity::StayInScreenSpace()
+{
+	// Check x borders
+	if (position.x < 0)
+		position.x = DISPLAY_WIDTH;
+	else if (position.x > DISPLAY_WIDTH)
+		position.x = 0;
+
+	// Check y borders
+	if (position.y < 0)
+		position.y = DISPLAY_HEIGHT;
+	else if (position.y > DISPLAY_HEIGHT)
+		position.y = 0;
 }

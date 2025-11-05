@@ -201,6 +201,7 @@
   <ItemGroup>
     <ClInclude Include="..\Play.h" />
     <ClInclude Include="Agent.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityManager.h" />
   </ItemGroup>
