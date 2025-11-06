@@ -2,7 +2,7 @@
 
 Agent::Agent()
 {
-	this->position = { 100, 100 };
+	this->position = { 100, 100};
 
 	// Setup target
 	this->target = new SteeringTarget();
@@ -51,13 +51,20 @@ void Agent::Update(float dTime)
 	this->target->prevPosition = this->target->position;
 
 	// Update agent
-	this->Steer();
+	//this->Steer();
 
 	// Rotate
 	if (this->velocity.x != 0 && this->velocity.y != 0)
 		this->orientation = atan2(this->velocity.y, this->velocity.x);
 
 	Entity::Update(dTime);
+
+	// Velocity cap
+	if (this->velocity.Length() > this->maxVelocity)
+	{
+		this->velocity.Normalize();
+		this->velocity *= this->maxVelocity;
+	}
 }
 
 void Agent::Draw()
@@ -83,7 +90,7 @@ void Agent::Steer()
 		this->Arrive();
 		break;
 	case ESteeringBehavior::Pursue:
-		this->Pursue(2);
+		this->Pursue(10);
 		break;
 	case ESteeringBehavior::Evade:
 		this->Evade(2);
@@ -131,6 +138,11 @@ void Agent::Pursue(float maxPrediction)
 	Point2D acceleration = targetPos - this->position;
 	acceleration.Normalize();
 
+	// Visualize prediction
+	Play:DrawLine(this->position, targetPos, Play::cGreen);
+	Play::DrawCircle(this->target->position, 10, Play::cRed);
+	Play::DrawCircle(targetPos, 10, Play::cGreen);
+
 	this->steering->linear = acceleration * maxAcceleration;
 }
 
@@ -154,6 +166,10 @@ void Agent::Evade(float maxPrediction)
 	Point2D targetPos = this->target->position + this->target->velocity * prediction;
 	Point2D acceleration = this->position - targetPos;
 	acceleration.Normalize();
+
+	// Visualize prediction
+	Play::DrawCircle(this->target->position, 10, Play::cRed);
+	Play::DrawCircle(targetPos, 10, Play::cGreen);
 
 	this->steering->linear = acceleration * maxAcceleration;
 }
@@ -198,7 +214,7 @@ void Agent::Arrive()
 		acceleration = acceleration * maxVelocity;
 	}
 
-	this->steering->linear = acceleration * maxAcceleration;
+	this->steering->linear = acceleration;
 }
 
 void Agent::Wander(float maxRotation)
@@ -210,6 +226,18 @@ void Agent::Wander(float maxRotation)
 
 	Point2D targPoint = this->position + Point2D(cos(targAngle), sin(targAngle));
 	Point2D acceleration = targPoint - this->position;
+	acceleration.Normalize();
+
+	this->steering->linear = acceleration * maxAcceleration;
+}
+
+void Agent::FollowPath(Path path, int offset)
+{
+	Point2D nextMove = this->position + this->velocity;
+	Point2D target = path.PosInPath(nextMove, offset);
+
+	// Seek
+	Point2D acceleration = target - this->position;
 	acceleration.Normalize();
 
 	this->steering->linear = acceleration * maxAcceleration;

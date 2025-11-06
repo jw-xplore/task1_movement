@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "Path.h"
 
 enum ESteeringBehavior
 {
@@ -24,8 +25,8 @@ class Agent : public Entity
 private:
 	ESteeringBehavior steeringType = ESteeringBehavior::Seek;
 	SteeringTarget* target;
-	float maxVelocity = 100;
-	float maxAcceleration = 20;
+	float maxVelocity = 80;
+	float maxAcceleration = 100;
 	float targetRadius = 1;
 	float timeToTarget = 0.25f;
 
@@ -45,4 +46,5 @@ public:
 	void Evade(float maxPrediction);
 	void Arrive();
 	void Wander(float maxRotation);
+	void FollowPath(Path path, int offset);
 };
