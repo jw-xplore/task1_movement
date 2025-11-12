@@ -21,7 +21,7 @@ class Entity
 private:
 	int id = -1;
 
-protected:
+public:
 	Point2D position = { 0,0 };
 	Point2D velocity = { 0,0 };
 	Point2D pivotPoint = { 0,0 };
@@ -30,7 +30,6 @@ protected:
 
 	SteeringOutput* steering;
 
-public:
 	Entity();
 	virtual ~Entity();
 	void Destroy();

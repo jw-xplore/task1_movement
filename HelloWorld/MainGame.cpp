@@ -32,7 +32,7 @@ bool MainGameUpdate( float elapsedTime )
 	Play::ClearDrawingBuffer( Play::cBlack );
 	entityManager->UpdateEntities(elapsedTime);
 
-	agent->FollowPath(*path, 10);
+	//agent->FollowPath(*path, 10);
 
 	path->DrawPath();
 	//path->PosInPath(agent->GetPosition());

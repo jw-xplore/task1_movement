@@ -2,10 +2,12 @@
 
 Agent::Agent()
 {
+	this->target = new SteerTarget();
+	this->steeringBehavior = new SteeringBehavior();
 	this->position = { 100, 100};
 
 	// Setup target
-	this->target = new SteeringTarget();
+	this->target = new SteerTarget();
 	this->target->position = Play::GetMousePos();
 	this->target->prevPosition = Play::GetMousePos();
 }
@@ -13,6 +15,7 @@ Agent::Agent()
 Agent::~Agent()
 {
 	delete this->target;
+	delete this->steering;
 }
 
 void Agent::Update(float dTime)
@@ -51,7 +54,7 @@ void Agent::Update(float dTime)
 	this->target->prevPosition = this->target->position;
 
 	// Update agent
-	//this->Steer();
+	this->Steer();
 
 	// Rotate
 	if (this->velocity.x != 0 && this->velocity.y != 0)
@@ -81,140 +84,33 @@ void Agent::Steer()
 	switch (this->steeringType)
 	{
 	case ESteeringBehavior::Seek:
-		this->Seek();
+		this->steering->linear = steeringBehavior->seek(this->target, this->position, this->maxAcceleration);
+		//this->Seek();
 		break;
 	case ESteeringBehavior::Flee:
-		this->Flee();
+		this->steering->linear = steeringBehavior->flee(this->target, this->position, this->maxAcceleration);
+		//this->Flee();
 		break;
 	case ESteeringBehavior::Arrive:
-		this->Arrive();
+		this->steering->linear = steeringBehavior->arrive(this->target, this->position, this->velocity, this->maxVelocity, this->maxAcceleration, 1, 0.1f);
+		//this->Arrive();
 		break;
 	case ESteeringBehavior::Pursue:
-		this->Pursue(10);
+		this->predictTarget = steeringBehavior->predictTarget(this->target, this->position, this->velocity, 10);
+		this->steering->linear = steeringBehavior->seek(this->predictTarget, this->position, this->maxAcceleration);
+		//delete predictTarget;
+		//this->Pursue(10);
 		break;
 	case ESteeringBehavior::Evade:
-		this->Evade(2);
+		predictTarget = steeringBehavior->predictTarget(this->target, this->position, this->velocity, 10);
+		this->steering->linear = steeringBehavior->flee(predictTarget, this->position, this->maxAcceleration);
+		//delete predictTarget;
+		//this->Evade(2);
 		break;
 	case ESteeringBehavior::Wander:
 		this->Wander(10);
 		break;
 	}
-}
-
-void Agent::Seek()
-{
-	Point2D acceleration = this->target->position - this->position;
-	acceleration.Normalize();
-
-	this->steering->linear = acceleration * maxAcceleration;
-}
-
-void Agent::Flee()
-{
-	Point2D acceleration = this->position - this->target->position;
-	acceleration.Normalize();
-
-	this->steering->linear = acceleration * maxAcceleration;
-}
-
-void Agent::Pursue(float maxPrediction)
-{
-	Point2D direction = this->target->position - this->position;
-	float distance = direction.Length();
-
-	float speed = this->velocity.Length();
-	float prediction;
-
-	if (speed <= distance / maxPrediction)
-	{
-		prediction = maxPrediction;
-	}
-	else
-	{
-		prediction = distance / speed;
-	}
-
-	Point2D targetPos = this->target->position + this->target->velocity * prediction;
-	Point2D acceleration = targetPos - this->position;
-	acceleration.Normalize();
-
-	// Visualize prediction
-	Play:DrawLine(this->position, targetPos, Play::cGreen);
-	Play::DrawCircle(this->target->position, 10, Play::cRed);
-	Play::DrawCircle(targetPos, 10, Play::cGreen);
-
-	this->steering->linear = acceleration * maxAcceleration;
-}
-
-void Agent::Evade(float maxPrediction)
-{
-	Point2D direction = this->target->position - this->position;
-	float distance = direction.Length();
-
-	float speed = this->velocity.Length();
-	float prediction;
-
-	if (speed <= distance / maxPrediction)
-	{
-		prediction = maxPrediction;
-	}
-	else
-	{
-		prediction = distance / maxPrediction;
-	}
-
-	Point2D targetPos = this->target->position + this->target->velocity * prediction;
-	Point2D acceleration = this->position - targetPos;
-	acceleration.Normalize();
-
-	// Visualize prediction
-	Play::DrawCircle(this->target->position, 10, Play::cRed);
-	Play::DrawCircle(targetPos, 10, Play::cGreen);
-
-	this->steering->linear = acceleration * maxAcceleration;
-}
-
-void Agent::Arrive()
-{
-	Point2D direction = this->target->position - this->position;
-	float distance = direction.Length();
-
-	// Stop
-	if (distance < targetRadius)
-	{
-		this->velocity = { 0, 0 };
-		this->steering->linear = { 0, 0 };
-		return;
-	}
-
-	// Adjust velocity
-	float slowRadius = 1;
-	float targetSpeed;
-
-	if (distance > slowRadius)
-	{
-		targetSpeed = maxVelocity;
-	}
-	else
-	{
-		targetSpeed = maxVelocity * distance / slowRadius;
-	}
-
-	Point2D targetVelocity = direction;
-	targetVelocity.Normalize();
-	targetVelocity *= targetSpeed;
-
-	// Adjust acceleration
-	Point2D acceleration = targetVelocity - this->velocity;
-	acceleration /= timeToTarget;
-
-	if (acceleration.Length() > maxVelocity)
-	{
-		acceleration.Normalize();
-		acceleration = acceleration * maxVelocity;
-	}
-
-	this->steering->linear = acceleration;
 }
 
 void Agent::Wander(float maxRotation)

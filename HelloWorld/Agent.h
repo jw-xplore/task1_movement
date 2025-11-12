@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 #include "Path.h"
+#include "SteeringBehavior.h"
 
 enum ESteeringBehavior
 {
@@ -24,15 +25,18 @@ class Agent : public Entity
 {
 private:
 	ESteeringBehavior steeringType = ESteeringBehavior::Seek;
-	SteeringTarget* target;
-	float maxVelocity = 80;
-	float maxAcceleration = 100;
+	SteerTarget* target;
+	SteerTarget* predictTarget;
 	float targetRadius = 1;
-	float timeToTarget = 0.25f;
+	float timeToTarget = 0.1f;
+	SteeringBehavior* steeringBehavior;
 
 	const char* const SPRITE = "ship";
 
 public:
+	float maxVelocity = 80;
+	float maxAcceleration = 100;
+
 	Agent();
 	~Agent();
 	void Update(float dTime) override;
