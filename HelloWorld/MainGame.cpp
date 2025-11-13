@@ -7,7 +7,9 @@
 
 EntityManager* entityManager;
 Agent* agent;
+Agent* agent2;
 Path* path;
+SteeringBehavior* steeringBehavior;
 
 // The entry point for a PlayBuffer program
 void MainGameEntry( PLAY_IGNORE_COMMAND_LINE )
@@ -16,9 +18,13 @@ void MainGameEntry( PLAY_IGNORE_COMMAND_LINE )
 
 	// Setup entity manager and entities
 	entityManager = new EntityManager();
-	agent = new Agent();
+	steeringBehavior = new SteeringBehavior();
+
+	agent = new Agent({100, 100}, steeringBehavior);
+	agent2 = new Agent({ 200, 20 }, steeringBehavior);
 
 	entityManager->AddEntity(agent);
+	entityManager->AddEntity(agent2);
 
 	Play::CentreAllSpriteOrigins();
 

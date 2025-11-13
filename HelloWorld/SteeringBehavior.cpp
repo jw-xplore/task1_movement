@@ -85,3 +85,42 @@ SteerTarget* SteeringBehavior::predictTarget(SteerTarget* target, Point2D pos, P
 
 	return newTarget;
 }
+
+SteerTarget* SteeringBehavior::followPath(Path* path, Point2D pos, Point2D vel, int offset)
+{
+	Point2D nextMove = pos + vel;
+	Point2D target = path->PosInPath(nextMove, offset);
+
+	SteerTarget* newTarget = new SteerTarget();
+	newTarget->position = path->PosInPath(nextMove, offset);
+
+	return newTarget;
+
+}
+
+Point2D SteeringBehavior::separate(std::vector<Entity*> obstacles, Entity* self, Point2D pos, float threshold, float maxAccel)
+{
+	Point2D acceleration = { 0, 0};
+	Point2D dir;
+	float dist;
+
+	for (int i = 0; i < obstacles.size(); i++)
+	{
+		if (obstacles[i] == self)
+			continue;
+
+		dir = obstacles[i]->position - pos;
+		dist = dir.Length();
+
+		if (dist < threshold)
+		{
+			float strenght = maxAccel * (threshold - dist) / threshold;
+			dir.Normalize();
+			acceleration = -dir * strenght;
+		}
+	}
+
+	DrawLine(pos, pos + acceleration, cOrange);
+
+	return acceleration;
+}

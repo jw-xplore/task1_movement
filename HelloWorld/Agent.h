@@ -38,6 +38,7 @@ public:
 	float maxAcceleration = 100;
 
 	Agent();
+	Agent(Point2D startPos, SteeringBehavior* steeringBeh);
 	~Agent();
 	void Update(float dTime) override;
 	void Draw() override;

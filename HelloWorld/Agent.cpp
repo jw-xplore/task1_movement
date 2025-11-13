@@ -2,9 +2,21 @@
 
 Agent::Agent()
 {
-	this->target = new SteerTarget();
 	this->steeringBehavior = new SteeringBehavior();
 	this->position = { 100, 100};
+
+	// Setup target
+	this->target = new SteerTarget();
+	this->target->position = Play::GetMousePos();
+	this->target->prevPosition = Play::GetMousePos();
+}
+
+Agent::Agent(Point2D startPos, SteeringBehavior* steeringBeh)
+{
+	this->position = startPos;
+
+	this->steeringBehavior = steeringBeh;
+	this->steeringBehavior->separationObstacles.insert(this->steeringBehavior->separationObstacles.end(), this);
 
 	// Setup target
 	this->target = new SteerTarget();
@@ -111,6 +123,8 @@ void Agent::Steer()
 		this->Wander(10);
 		break;
 	}
+
+	this->steering->linear += this->steeringBehavior->separate(this->steeringBehavior->separationObstacles, this, this->position, 100, this->maxAcceleration);
 }
 
 void Agent::Wander(float maxRotation)
@@ -122,18 +136,6 @@ void Agent::Wander(float maxRotation)
 
 	Point2D targPoint = this->position + Point2D(cos(targAngle), sin(targAngle));
 	Point2D acceleration = targPoint - this->position;
-	acceleration.Normalize();
-
-	this->steering->linear = acceleration * maxAcceleration;
-}
-
-void Agent::FollowPath(Path path, int offset)
-{
-	Point2D nextMove = this->position + this->velocity;
-	Point2D target = path.PosInPath(nextMove, offset);
-
-	// Seek
-	Point2D acceleration = target - this->position;
 	acceleration.Normalize();
 
 	this->steering->linear = acceleration * maxAcceleration;
