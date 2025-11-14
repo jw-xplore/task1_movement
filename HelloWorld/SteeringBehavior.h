@@ -25,4 +25,5 @@ public:
 	SteerTarget* predictTarget(SteerTarget* target, Point2D pos, Point2D vel, float maxPredict);
 	SteerTarget* followPath(Path* path, Point2D pos, Point2D vel, int offset);
 	Point2D separate(std::vector<Entity*> obstacles, Entity* self, Point2D pos, float threshold, float maxAccel);
+	Point2D avoidCollisions(std::vector<Entity*> obstacles, Entity* self, float radius, float maxAccel);
 };

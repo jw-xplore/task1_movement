@@ -55,7 +55,7 @@ Point2D SteeringBehavior::arrive(SteerTarget* target, Point2D pos, Point2D vel, 
 		acceleration = acceleration * maxAccel;
 	}
 
-	DrawLine(pos, pos + acceleration, cOrange);
+	Play::DrawLine(pos, pos + acceleration, cOrange);
 	return acceleration;
 }
 
@@ -120,7 +120,81 @@ Point2D SteeringBehavior::separate(std::vector<Entity*> obstacles, Entity* self,
 		}
 	}
 
-	DrawLine(pos, pos + acceleration, cOrange);
+	Play::DrawLine(pos, pos + acceleration, cOrange);
 
 	return acceleration;
+}
+
+Point2D SteeringBehavior::avoidCollisions(std::vector<Entity*> obstacles, Entity* self, float radius, float maxAccel)
+{
+	// Find closest target
+	float shortestTime = std::numeric_limits<float>::max();
+
+	Entity* firstTarget = nullptr;
+	float firstMinSeparation;
+	float firstDistance;
+	Point2D firstRelativePos;
+	Point2D firstRelativeVel;
+
+
+	for (int i = 0; i < obstacles.size(); i++)
+	{
+		if (obstacles[i] == self)
+			continue;
+
+		// Time to collision
+		Point2D relativePos = obstacles[i]->position - self->position;
+		Point2D relativeVel = obstacles[i]->velocity - self->velocity;
+		float relativeSpeed = relativeVel.Length();
+
+		float timeToCollide = relativePos.Dot(relativeVel) / (relativeSpeed * relativeSpeed);
+
+		// Check if there will be collision
+		float distance = relativePos.Length();
+		float minSeparation = distance - relativeSpeed * shortestTime;
+
+		if (minSeparation > radius * 2)
+		{
+			continue;
+		}
+
+		// Check the shortest
+		if (timeToCollide > 0 && timeToCollide < shortestTime)
+		{
+			shortestTime = timeToCollide;
+			firstTarget = obstacles[i];
+			firstMinSeparation = minSeparation;
+			firstDistance = distance;
+			firstRelativePos = relativePos;
+			firstRelativeVel = relativeVel;
+		}
+	}
+
+	// Calculate steering
+	if (firstTarget == nullptr)
+		return { 0, 0 };
+
+	// Apply steering on ongoing collision
+
+	/*
+	// NOTE: WHT following the obstacle collision code doesn't make sense cause it relies on local values from loop to make final calculation
+	Probably fix is to use cached "first..." values but I don't understand functionality enough to comfirm it now
+	*/
+
+	Point2D relativePos;
+	
+	float distance = (firstTarget->position - self->position).Length();
+
+	if (firstMinSeparation <= 0 || distance < radius * 2)
+	{
+		relativePos = firstTarget->position - self->position;
+	}
+	else
+	{
+		relativePos = firstRelativePos + firstRelativeVel * shortestTime;
+	}
+
+	relativePos.Normalize();
+	Play::DrawLine(self->position, self->position + relativePos * maxAccel, cOrange);
+	return relativePos * maxAccel;
 }

@@ -124,7 +124,8 @@ void Agent::Steer()
 		break;
 	}
 
-	this->steering->linear += this->steeringBehavior->separate(this->steeringBehavior->separationObstacles, this, this->position, 100, this->maxAcceleration);
+	//this->steering->linear += this->steeringBehavior->separate(this->steeringBehavior->separationObstacles, this, this->position, 100, this->maxAcceleration);
+	this->steering->linear -= this->steeringBehavior->avoidCollisions(this->steeringBehavior->separationObstacles, this, 50, this->maxAcceleration);
 }
 
 void Agent::Wander(float maxRotation)
