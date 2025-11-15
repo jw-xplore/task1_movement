@@ -11,4 +11,5 @@ public:
 	Path(std::vector<Play::Point2D> path);
 	void DrawPath();
 	Play::Point2D PosInPath(Play::Point2D position, int offset);
+	Play::Point2D NormalInPath(Play::Point2D position);
 };

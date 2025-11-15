@@ -36,6 +36,8 @@ private:
 public:
 	float maxVelocity = 80;
 	float maxAcceleration = 100;
+	CollisionHandler* collisionHandler;
+	std::vector<Path*> walls;
 
 	Agent();
 	Agent(Point2D startPos, SteeringBehavior* steeringBeh);

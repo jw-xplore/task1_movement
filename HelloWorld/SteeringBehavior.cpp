@@ -128,7 +128,7 @@ Point2D SteeringBehavior::separate(std::vector<Entity*> obstacles, Entity* self,
 Point2D SteeringBehavior::avoidCollisions(std::vector<Entity*> obstacles, Entity* self, float radius, float maxAccel)
 {
 	// Find closest target
-	float shortestTime = std::numeric_limits<float>::max();
+	float shortestTime = 99999;
 
 	Entity* firstTarget = nullptr;
 	float firstMinSeparation;
@@ -151,7 +151,7 @@ Point2D SteeringBehavior::avoidCollisions(std::vector<Entity*> obstacles, Entity
 
 		// Check if there will be collision
 		float distance = relativePos.Length();
-		float minSeparation = distance - relativeSpeed * shortestTime;
+		float minSeparation = distance - relativeSpeed * timeToCollide;
 
 		if (minSeparation > radius * 2)
 		{
@@ -174,19 +174,11 @@ Point2D SteeringBehavior::avoidCollisions(std::vector<Entity*> obstacles, Entity
 	if (firstTarget == nullptr)
 		return { 0, 0 };
 
-	// Apply steering on ongoing collision
-
-	/*
-	// NOTE: WHT following the obstacle collision code doesn't make sense cause it relies on local values from loop to make final calculation
-	Probably fix is to use cached "first..." values but I don't understand functionality enough to comfirm it now
-	*/
-
 	Point2D relativePos;
-	
-	float distance = (firstTarget->position - self->position).Length();
 
-	if (firstMinSeparation <= 0 || distance < radius * 2)
+	if (firstMinSeparation <= 0 || firstDistance < radius * 2)
 	{
+		// Apply steering on ongoing collision
 		relativePos = firstTarget->position - self->position;
 	}
 	else
@@ -197,4 +189,35 @@ Point2D SteeringBehavior::avoidCollisions(std::vector<Entity*> obstacles, Entity
 	relativePos.Normalize();
 	Play::DrawLine(self->position, self->position + relativePos * maxAccel, cOrange);
 	return relativePos * maxAccel;
+}
+
+SteerTarget* SteeringBehavior::avoidObstacles(CollisionHandler* collisiions, std::vector<Path*> walls, Entity* self, float avoidDist, float lookahead)
+{
+	SteerTarget* newTarget = new SteerTarget();
+	newTarget->position = { 0, 0 };
+
+	Point2D ray = self->velocity;
+	if (ray.x == 0 && ray.y == 0)
+		return newTarget;
+
+	ray.Normalize();
+	ray *= lookahead;
+
+	Point2D posRay = self->position + ray;
+
+	Collision col = collisiions->detectCollision(walls, posRay);
+	float distance = (col.position - posRay).Length();
+
+	if (distance <= avoidDist)
+	{
+		newTarget->position += col.normal * avoidDist;
+		DrawLine(self->position, newTarget->position, cGreen);
+	}
+
+	DrawLine(self->position, self->position + ray, cOrange);
+	DrawCircle(self->position + ray, avoidDist, cYellow);
+	DrawCircle(col.position, 10, cOrange);
+	DrawCircle(self->position + newTarget->position, 10, cGreen);
+
+	return newTarget;
 }
