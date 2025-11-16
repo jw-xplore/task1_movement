@@ -24,7 +24,9 @@ void MainGameEntry( PLAY_IGNORE_COMMAND_LINE )
 	collisionHandler = new CollisionHandler();
 
 	// Setup path
-	path = new Path({ { 150, 40 }, { 280, 100 }, { 400, 50 }, { 600, 200 }, { 400, 250 }, { 300, 300} });
+	//path = new Path({ { 150, 40 }, { 280, 100 }, { 400, 50 }, { 600, 200 }, { 400, 250 }, { 300, 300} });
+
+	path = new Path({ { 100, 100 }, { 400, 100 }, { 400, 300 }, { 100, 300 }, { 100, 150 } });
 
 	agent = new Agent({100, 100}, steeringBehavior);
 	agent->collisionHandler = collisionHandler;

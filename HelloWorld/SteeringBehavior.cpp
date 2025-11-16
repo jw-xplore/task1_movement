@@ -205,7 +205,7 @@ SteerTarget* SteeringBehavior::avoidObstacles(CollisionHandler* collisiions, std
 
 	Point2D posRay = self->position + ray;
 
-	Collision col = collisiions->detectCollision(walls, posRay);
+	Collision col = collisiions->detectCollision(walls, posRay, self->position);
 	float distance = (col.position - posRay).Length();
 
 	if (distance <= avoidDist)

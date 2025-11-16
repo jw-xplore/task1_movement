@@ -34,7 +34,7 @@ private:
 	const char* const SPRITE = "ship";
 
 public:
-	float maxVelocity = 80;
+	float maxVelocity = 60;
 	float maxAcceleration = 100;
 	CollisionHandler* collisionHandler;
 	std::vector<Path*> walls;

@@ -125,15 +125,19 @@ void Agent::Steer()
 		break;
 	}
 
+	DrawLine(this->position, this->position + this->steering->linear, cGreen);
+
 	//this->steering->linear += this->steeringBehavior->separate(this->steeringBehavior->separationObstacles, this, this->position, 100, this->maxAcceleration);
 	//this->steering->linear -= this->steeringBehavior->avoidCollisions(this->steeringBehavior->separationObstacles, this, 50, this->maxAcceleration);
 	//predictTarget = this->steeringBehavior->avoidObstacles(collisionHandler, walls, this, 50, 50);
-	this->predictTarget = this->steeringBehavior->avoidObstacles(collisionHandler, walls, this, 50, 50);
+	this->predictTarget = this->steeringBehavior->avoidObstacles(collisionHandler, walls, this, 60, 30);
 	Point2D change = this->predictTarget->position;
 	if (change.x != 0 || change.y != 0)
 	{
 		change.Normalize();
-		this->steering->linear += change * maxAcceleration;
+		this->steering->linear += change * maxAcceleration * 2;
+		DrawLine(this->position, this->position + change * maxAcceleration, cMagenta);
+		DrawLine(this->position, this->position + this->steering->linear, cCyan);
 	}
 }
 

@@ -15,6 +15,6 @@ class CollisionHandler
 public:
 	//std::vector<Path*> walls;
 
-	Collision detectCollision(std::vector<Path*> walls, Play::Point2D pos);
+	Collision detectCollision(std::vector<Path*> walls, Play::Point2D pos, Play::Point2D charPos);
 };
 

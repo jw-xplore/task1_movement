@@ -1,6 +1,6 @@
 #include "CollisionHandler.h"
 
-Collision CollisionHandler::detectCollision(std::vector<Path*> walls, Play::Point2D pos)
+Collision CollisionHandler::detectCollision(std::vector<Path*> walls, Play::Point2D pos, Play::Point2D charPos)
 {
 	Play::Point2D closestPos;
 	int closestPath = 0;
@@ -20,8 +20,9 @@ Collision CollisionHandler::detectCollision(std::vector<Path*> walls, Play::Poin
 	}
 
 	Play::Point2D touchPos = walls[closestPath]->NormalInPath(pos);
-	Play::Point2D normal = pos - touchPos;
-	normal.Normalize();
+	Play::Point2D normal = charPos - touchPos;
+	if (normal.x != 0 || normal.y != 0)
+		normal.Normalize();
 
 	Collision col;
 	col.position = touchPos;
