@@ -11,12 +11,14 @@ Agent::Agent()
 	this->target->prevPosition = Play::GetMousePos();
 }
 
-Agent::Agent(Point2D startPos, SteeringBehavior* steeringBeh)
+Agent::Agent(Point2D startPos, SteeringBehavior* steeringBeh, CollisionHandler* collisionHandler)
 {
 	this->position = startPos;
 
 	this->steeringBehavior = steeringBeh;
 	this->steeringBehavior->separationObstacles.insert(this->steeringBehavior->separationObstacles.end(), this);
+
+	this->collisionHandler = collisionHandler;
 
 	// Setup target
 	this->target = new SteerTarget();
@@ -32,34 +34,6 @@ Agent::~Agent()
 
 void Agent::Update(float dTime)
 {
-	// Switch behavior
-	if (Play::KeyPressed(Play::KeyboardButton::KEY_RIGHT))
-	{
-		int val = this->steeringType;
-
-		if (this->steeringType < ESteeringBehavior::Wander)
-			val *= 2;
-		else
-			val = 1;
-
-		this->steeringType = static_cast<ESteeringBehavior>(val);
-	}
-	else if (Play::KeyPressed(Play::KeyboardButton::KEY_LEFT))
-	{
-		int val = this->steeringType;
-
-		if (this->steeringType > ESteeringBehavior::Seek)
-			val /= 2;
-		else
-			val = ESteeringBehavior::Wander;
-
-		this->steeringType = static_cast<ESteeringBehavior>(val);
-	}
-
-	std::string tmp = "Type: " + std::to_string(this->steeringType);
-	char const* txt = tmp.c_str();
-	Play::DrawDebugText({40,40}, txt);
-
 	// Update target position
 	this->target->position = Play::GetMousePos();
 	this->target->velocity = this->target->position - this->target->prevPosition;
@@ -96,56 +70,51 @@ void Agent::Steer()
 	switch (this->steeringType)
 	{
 	case ESteeringBehavior::Seek:
-		//this->predictTarget = this->steeringBehavior->avoidObstacles(collisionHandler, walls, this, 50, 50);
 		this->steering->linear = steeringBehavior->seek(this->target, this->position, this->maxAcceleration);
-		//this->Seek();
 		break;
 	case ESteeringBehavior::Flee:
 		this->steering->linear = steeringBehavior->flee(this->target, this->position, this->maxAcceleration);
-		//this->Flee();
 		break;
 	case ESteeringBehavior::Arrive:
 		this->steering->linear = steeringBehavior->arrive(this->target, this->position, this->velocity, this->maxVelocity, this->maxAcceleration, 1, 0.1f);
-		//this->Arrive();
 		break;
 	case ESteeringBehavior::Pursue:
 		this->predictTarget = steeringBehavior->predictTarget(this->target, this->position, this->velocity, 10);
 		this->steering->linear = steeringBehavior->seek(this->predictTarget, this->position, this->maxAcceleration);
-		//delete predictTarget;
-		//this->Pursue(10);
 		break;
 	case ESteeringBehavior::Evade:
 		predictTarget = steeringBehavior->predictTarget(this->target, this->position, this->velocity, 10);
 		this->steering->linear = steeringBehavior->flee(predictTarget, this->position, this->maxAcceleration);
-		//delete predictTarget;
-		//this->Evade(2);
 		break;
 	case ESteeringBehavior::Wander:
 		this->Wander(10);
 		break;
+	case ESteeringBehavior::FollowPath:
+		this->predictTarget = this->steeringBehavior->followPath(followPath, this->position, this->velocity, 10);
+		this->steering->linear = steeringBehavior->arrive(this->predictTarget, this->position, this->velocity, this->maxVelocity, this->maxAcceleration, 1, 0.1f);
+		break;
+	case ESteeringBehavior::Separation:
+		this->steering->linear = steeringBehavior->seek(this->target, this->position, this->maxAcceleration);
+		this->steering->linear += this->steeringBehavior->separate(this->steeringBehavior->separationObstacles, this, this->position, 100, this->maxAcceleration);
+		break;
+	case ESteeringBehavior::CollisionAvoidance:
+		this->steering->linear = steeringBehavior->seek(this->target, this->position, this->maxAcceleration);
+		this->steering->linear -= this->steeringBehavior->avoidCollisions(this->steeringBehavior->separationObstacles, this, 50, this->maxAcceleration);
+		break;
+	case ESteeringBehavior::WallAvoidance:
+		this->steering->linear = steeringBehavior->seek(this->target, this->position, this->maxAcceleration);
+
+		this->predictTarget = this->steeringBehavior->avoidObstacles(collisionHandler, walls, this, 60, 30);
+		Point2D change = this->predictTarget->position;
+		if (change.x != 0 || change.y != 0)
+		{
+			change.Normalize();
+			this->steering->linear += change * maxAcceleration * 2;
+			DrawLine(this->position, this->position + change * maxAcceleration, cMagenta);
+			DrawLine(this->position, this->position + this->steering->linear, cCyan);
+		}
+		break;
 	}
-
-	DrawLine(this->position, this->position + this->steering->linear, cGreen);
-
-	//this->steering->linear += this->steeringBehavior->separate(this->steeringBehavior->separationObstacles, this, this->position, 100, this->maxAcceleration);
-	//this->steering->linear -= this->steeringBehavior->avoidCollisions(this->steeringBehavior->separationObstacles, this, 50, this->maxAcceleration);
-	//predictTarget = this->steeringBehavior->avoidObstacles(collisionHandler, walls, this, 50, 50);
-	this->predictTarget = this->steeringBehavior->avoidObstacles(collisionHandler, walls, this, 60, 30);
-	Point2D change = this->predictTarget->position;
-	if (change.x != 0 || change.y != 0)
-	{
-		change.Normalize();
-		this->steering->linear += change * maxAcceleration * 2;
-		DrawLine(this->position, this->position + change * maxAcceleration, cMagenta);
-		DrawLine(this->position, this->position + this->steering->linear, cCyan);
-	}
-}
-
-void Agent::FollowPath(Path path, int offset)
-{
-	this->predictTarget = this->steeringBehavior->followPath(&path, this->position, this->velocity, offset);
-	//this->steering->linear = steeringBehavior->seek(this->predictTarget, this->position, this->maxAcceleration);
-	this->steering->linear = steeringBehavior->arrive(this->predictTarget, this->position, this->velocity, this->maxVelocity, this->maxAcceleration, 1, 0.1f);
 }
 
 void Agent::Wander(float maxRotation)

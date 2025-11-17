@@ -5,12 +5,18 @@
 
 enum ESteeringBehavior
 {
-	Seek = 1,
-	Flee = 2,
-	Arrive = 4,
-	Pursue = 8,
-	Evade = 16,
-	Wander = 32
+	None,
+	Seek,
+	Flee,
+	Arrive,
+	Pursue,
+	Evade,
+	Wander,
+	FollowPath,
+	Separation,
+	CollisionAvoidance,
+	WallAvoidance,
+	SteeringBehaviorCount
 };
 
 struct SteeringTarget
@@ -24,7 +30,6 @@ public:
 class Agent : public Entity
 {
 private:
-	ESteeringBehavior steeringType = ESteeringBehavior::Seek;
 	SteerTarget* target;
 	SteerTarget* predictTarget;
 	float targetRadius = 1;
@@ -34,24 +39,20 @@ private:
 	const char* const SPRITE = "ship";
 
 public:
+	ESteeringBehavior steeringType = ESteeringBehavior::Seek;
 	float maxVelocity = 60;
 	float maxAcceleration = 100;
 	CollisionHandler* collisionHandler;
 	std::vector<Path*> walls;
+	Path* followPath;
 
 	Agent();
-	Agent(Point2D startPos, SteeringBehavior* steeringBeh);
+	Agent(Point2D startPos, SteeringBehavior* steeringBeh, CollisionHandler* collisionHandler);
 	~Agent();
 	void Update(float dTime) override;
 	void Draw() override;
 
 	// Steering behavior
 	void Steer();
-	void Seek();
-	void Flee();
-	void Pursue(float maxPrediction);
-	void Evade(float maxPrediction);
-	void Arrive();
 	void Wander(float maxRotation);
-	void FollowPath(Path path, int offset);
 };
