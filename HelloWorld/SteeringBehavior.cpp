@@ -136,6 +136,9 @@ Point2D SteeringBehavior::avoidCollisions(std::vector<Entity*> obstacles, Entity
 	Point2D firstRelativePos;
 	Point2D firstRelativeVel;
 
+	Play::DrawLine(self->position, self->position + self->velocity, cGreen);
+	DrawCircle(self->position + self->velocity, radius, cOrange);
+
 
 	for (int i = 0; i < obstacles.size(); i++)
 	{
@@ -147,7 +150,7 @@ Point2D SteeringBehavior::avoidCollisions(std::vector<Entity*> obstacles, Entity
 		Point2D relativeVel = obstacles[i]->velocity - self->velocity;
 		float relativeSpeed = relativeVel.Length();
 
-		float timeToCollide = relativePos.Dot(relativeVel) / (relativeSpeed * relativeSpeed);
+		float timeToCollide = -relativePos.Dot(relativeVel) / (relativeSpeed * relativeSpeed);
 
 		// Check if there will be collision
 		float distance = relativePos.Length();
@@ -211,12 +214,12 @@ SteerTarget* SteeringBehavior::avoidObstacles(CollisionHandler* collisiions, std
 	if (distance <= avoidDist)
 	{
 		newTarget->position += col.normal * avoidDist;
-		DrawLine(self->position, newTarget->position, cGreen);
+		DrawLine(self->position, self->position + newTarget->position, cGreen);
 	}
 
 	DrawLine(self->position, self->position + ray, cOrange);
-	DrawCircle(self->position + ray, avoidDist, cYellow);
-	DrawCircle(col.position, 10, cOrange);
+	//DrawCircle(self->position + ray, avoidDist, cYellow);
+	//DrawCircle(col.position, 10, cOrange);
 	DrawCircle(self->position + newTarget->position, 10, cGreen);
 
 	return newTarget;

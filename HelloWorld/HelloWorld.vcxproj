@@ -192,6 +192,7 @@
   <ItemGroup>
     <ClCompile Include="Agent.cpp" />
     <ClCompile Include="CollisionHandler.cpp" />
+    <ClCompile Include="CoordinatedMovement.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="MainGame.cpp">
@@ -206,6 +207,7 @@
     <ClInclude Include="Agent.h" />
     <ClInclude Include="CollisionHandler.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="CoordinatedMovement.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="Path.h" />

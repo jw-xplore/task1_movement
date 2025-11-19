@@ -35,7 +35,7 @@ Agent::~Agent()
 void Agent::Update(float dTime)
 {
 	// Update target position
-	this->target->position = Play::GetMousePos();
+	//this->target->position = Play::GetMousePos();
 	this->target->velocity = this->target->position - this->target->prevPosition;
 	this->target->prevPosition = this->target->position;
 

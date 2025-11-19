@@ -20,7 +20,7 @@ Collision CollisionHandler::detectCollision(std::vector<Path*> walls, Play::Poin
 	}
 
 	Play::Point2D touchPos = walls[closestPath]->NormalInPath(pos);
-	Play::Point2D normal = charPos - touchPos;
+	Play::Point2D normal = pos - touchPos;
 	if (normal.x != 0 || normal.y != 0)
 		normal.Normalize();
 

@@ -30,7 +30,6 @@ public:
 class Agent : public Entity
 {
 private:
-	SteerTarget* target;
 	SteerTarget* predictTarget;
 	float targetRadius = 1;
 	float timeToTarget = 0.1f;
@@ -39,6 +38,7 @@ private:
 	const char* const SPRITE = "ship";
 
 public:
+	SteerTarget* target;
 	ESteeringBehavior steeringType = ESteeringBehavior::Seek;
 	float maxVelocity = 60;
 	float maxAcceleration = 100;

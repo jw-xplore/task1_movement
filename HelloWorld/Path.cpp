@@ -95,11 +95,6 @@ Play::Point2D Path::NormalInPath(Play::Point2D position)
 		}
 	}
 
-	if (closest + 1 == last)
-	{
-		return this->points[last];
-	}
-
 	// Check which edge is closer
 	int closerEdge = -1;
 	Play::Point2D nextPos = this->points[closest + 1];
