@@ -46,15 +46,6 @@ Play::Point2D Path::PosInPath(Play::Point2D position, int offset)
 		return this->points[last];
 	}
 
-	// Check which edge is closer
-	/*
-	int closerEdge = -1;
-	Play::Point2D nextPos = this->points[closest + 1];
-	if (closest == 0 || (this->points[closest] - nextPos).Length() > (position - nextPos).Length())
-	{
-		closerEdge = 1;
-	}
-	*/
 	int closerEdge = 1;
 
 	// Point projection

@@ -87,7 +87,7 @@ void Agent::Steer()
 		this->steering->linear = steeringBehavior->flee(predictTarget, this->position, this->maxAcceleration);
 		break;
 	case ESteeringBehavior::Wander:
-		this->Wander(10);
+		this->Wander(25);
 		break;
 	case ESteeringBehavior::FollowPath:
 		this->predictTarget = this->steeringBehavior->followPath(followPath, this->position, this->velocity, 10);
@@ -100,6 +100,9 @@ void Agent::Steer()
 	case ESteeringBehavior::CollisionAvoidance:
 		this->steering->linear = steeringBehavior->seek(this->target, this->position, this->maxAcceleration);
 		this->steering->linear -= this->steeringBehavior->avoidCollisions(this->steeringBehavior->separationObstacles, this, 50, this->maxAcceleration);
+		break;
+	case ESteeringBehavior::GroupMovement:
+		this->steering->linear = steeringBehavior->arrive(this->target, this->position, this->velocity, this->maxVelocity, this->maxAcceleration, 1, 0.1f);
 		break;
 	case ESteeringBehavior::WallAvoidance:
 		this->steering->linear = steeringBehavior->seek(this->target, this->position, this->maxAcceleration);

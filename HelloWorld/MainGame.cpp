@@ -85,15 +85,46 @@ void BehaviorSwitch()
 		steeringType = static_cast<ESteeringBehavior>(val);
 	}
 
+	// Coordinated movement
+	if (steeringType == ESteeringBehavior::GroupMovement)
+	{
+		agent->target->position = Play::GetMousePos();
+		agent2->target->position = group->memberPosition(agent2);
+		agent3->target->position = group->memberPosition(agent3);
+	}
+	else
+	{
+		agent->target->position = Play::GetMousePos();
+		agent2->target->position = Play::GetMousePos();
+		agent3->target->position = Play::GetMousePos();
+	}
+
 	// Apply to agents
 	agent->steeringType = steeringType;
 	agent2->steeringType = steeringType;
 	agent3->steeringType = steeringType;
 
 	// Show UI
-	std::string tmp = "Type: " + std::to_string(steeringType);
+	std::string typeName = "";
+
+	switch (steeringType)
+	{
+	case ESteeringBehavior::Seek: typeName = "Seek";  break;
+	case ESteeringBehavior::Flee: typeName = "Flee"; break;
+	case ESteeringBehavior::Arrive: typeName = "Arrive"; break;
+	case ESteeringBehavior::Pursue: typeName = "Pursue"; break;
+	case ESteeringBehavior::Evade: typeName = "Evade"; break;
+	case ESteeringBehavior::Wander: typeName = "Wander"; break;
+	case ESteeringBehavior::FollowPath: typeName = "Move along path"; break;
+	case ESteeringBehavior::Separation: typeName = "Separation"; break;
+	case ESteeringBehavior::CollisionAvoidance: typeName = "Collision avoidance"; break;
+	case ESteeringBehavior::GroupMovement: typeName = "Move in group"; break;
+	case ESteeringBehavior::WallAvoidance: typeName = "Avoid wall that is defined by path"; break;
+	}
+
+	std::string tmp = "(Use arrows to switch) Type: " + typeName;
 	char const* txt = tmp.c_str();
-	Play::DrawDebugText({ 40,40 }, txt);
+	Play::DrawDebugText({ 100,40 }, txt, cWhite, false);
 }
 
 // Called by PlayBuffer every frame (60 times a second!)
@@ -103,11 +134,6 @@ bool MainGameUpdate( float elapsedTime )
 	entityManager->UpdateEntities(elapsedTime);
 
 	BehaviorSwitch();
-
-	// Coordinated movement
-	agent->target->position = Play::GetMousePos();
-	agent2->target->position = group->memberPosition(agent2);
-	agent3->target->position = group->memberPosition(agent3);
 
 	path->DrawPath();
 

@@ -16,6 +16,7 @@ enum ESteeringBehavior
 	Separation,
 	CollisionAvoidance,
 	WallAvoidance,
+	GroupMovement,
 	SteeringBehaviorCount
 };
 
